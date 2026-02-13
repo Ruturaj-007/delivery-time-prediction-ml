@@ -1,0 +1,6 @@
+gradio==4.44.0
+pandas==2.2.0
+scikit-learn==1.4.0
+requests==2.31.0
+resend==0.8.0
+python-dotenv==1.0.0
