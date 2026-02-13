@@ -20,11 +20,7 @@ An intelligent machine learning system that predicts food delivery times with hi
 - [Installation](#installation)
 - [Usage](#usage)
 - [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
 - [Results & Insights](#results--insights)
-- [Future Enhancements](#future-enhancements)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -261,43 +257,6 @@ print(f"Estimated Delivery Time: {predicted_time[0]:.2f} minutes")
 
 ---
 
-## 📁 Project Structure
-
-```
-ai-delitime/
-│
-├── data/
-│   └── Dataset.csv                 # Raw dataset
-│
-├── notebooks/
-│   ├── 01_EDA.ipynb               # Exploratory Data Analysis
-│   ├── 02_Feature_Engineering.ipynb
-│   └── 03_Model_Training.ipynb
-│
-├── models/
-│   ├── delivery_time_model.pkl    # Trained model
-│   └── model_features.pkl         # Feature list
-│
-├── src/
-│   ├── preprocessing.py           # Data preprocessing
-│   ├── feature_engineering.py     # Feature engineering
-│   ├── model_training.py          # Model training
-│   └── prediction.py              # Prediction logic
-│
-├── frontend/
-│   ├── src/
-│   │   ├── AnalyzerPage.tsx      # Main UI component
-│   │   └── Home.css              # Styling
-│   ├── package.json
-│   └── ...
-│
-├── requirements.txt               # Python dependencies
-├── README.md                      # This file
-└── LICENSE
-```
-
----
-
 ## 🔍 Results & Insights
 
 ### Key Findings from EDA
@@ -325,41 +284,10 @@ ai-delitime/
 
 ---
 
-## 🚀 Future Enhancements
-
-- [ ] **Real-time Traffic Integration** - Google Maps API
-- [ ] **Weather Data** - OpenWeather API for weather-based predictions
-- [ ] **Time of Day Features** - Rush hour impact analysis
-- [ ] **Batch Predictions** - CSV upload for multiple orders
-- [ ] **Model Retraining Pipeline** - Automated model updates
-- [ ] **Mobile Application** - React Native app
-- [ ] **API Development** - RESTful API for third-party integration
-- [ ] **A/B Testing Framework** - Compare model versions
-- [ ] **Explainability Dashboard** - SHAP/LIME for model interpretability
-- [ ] **Multi-city Support** - City-specific models
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 📞 Contact
-
-For questions or feedback, please reach out:
-
-- **Email**: pruturaj3003@gmail.com
-- **Project Link**: [https://github.com/yourusername/ai-delitime](https://github.com/yourusername/ai-delitime)
-
----
-
 ## 🙏 Acknowledgments
 
 - Hackathon organizers for the problem statement
 - Food delivery platforms for inspiration
-- Open-source community for amazing tools
 
 ---
 
@@ -367,6 +295,6 @@ For questions or feedback, please reach out:
 
 **⭐ Star this repository if you found it helpful!**
 
-Made with ❤️ and ☕ by [Your Team Name]
+Made with ❤️ and ☕ by [First Round AI]
 
 </div>
