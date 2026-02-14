@@ -2,7 +2,6 @@
 
 ![AI DeliTime](https://img.shields.io/badge/AI-DeliTime-00ffc3?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python)
-![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![ML](https://img.shields.io/badge/Machine_Learning-Scikit--learn-orange?style=for-the-badge)
 ![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white)
@@ -15,15 +14,16 @@ An intelligent machine learning system that predicts food delivery times with hi
 ---
 
 ## Screenshots
-
-### AI Performance Analytics
-![Performance Analytics](screenshots/ai_performance_analytics.png)
+### Delivery Prediction
+![Delivery Prediction](screenshots/delivery_prediction.png)
 
 ### Email Performance Report
 ![Email Report](screenshots/detailed_email_report.png)
 
-### Delivery Prediction
-![Delivery Prediction](screenshots/delivery_prediction.png)
+### AI Performance Analytics
+![Performance Analytics](screenshots/ai_performance_analytics.png)
+
+
 
 ---
 
@@ -179,9 +179,15 @@ X = [
 
 | Model | MAE | RMSE | Status |
 |-------|-----|------|--------|
-| Linear Regression | X.XX | X.XX | Baseline |
-| Random Forest | X.XX | X.XX | Good |
-| **Gradient Boosting** | **X.XX** | **X.XX** | **Selected** |
+| Linear Regression | 6.64 | 8.46 | Baseline |
+| Random Forest | 5.71 | 7.26 | Good |
+| **Gradient Boosting** | **5.67** | **7.21** | **✓ Selected** |
+
+**Performance Improvement:**
+- Gradient Boosting achieved **14.6% better MAE** compared to Linear Regression baseline
+- RMSE improved by **14.8%**, demonstrating superior prediction accuracy
+- Random Forest showed competitive performance with slight edge given to Gradient Boosting
+
 
 ### Feature Importance
 
@@ -297,15 +303,11 @@ print(f"Estimated Delivery Time: {predicted_time[0]:.2f} minutes")
 - **NumPy** - Numerical operations
 - **Matplotlib/Seaborn** - Data visualization
 
-### Frontend
-- **React.js** - UI framework
-- **TypeScript** - Type safety
-- **CSS3** - Custom styling
-- **React Hot Toast** - Notifications
-
 ### AI & Automation
 - **Streamlit** - Analytics dashboard
 - **Google Gemini** - LLM-powered performance analysis
+- **Html** - Frontend
+- **CSS** - Frontend
 - **Resend** - Email delivery service
 
 ### Deployment
