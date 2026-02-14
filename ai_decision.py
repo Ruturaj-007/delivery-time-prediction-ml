@@ -10,26 +10,24 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not configured in .env file")
 
-# Summary data structure
+# Delivery performance summary
 summary = {
-    "context": "Student academic performance evaluation dataset",
+    "context": "Food delivery service performance evaluation",
     "signals": {
-        "total_students": 1000,
-        "overall_avg_score": 67.71,
-        "risk_percentage": 12.4,
-        "test_preparation_impact": {
-            "completed": 72.82,
-            "none": 65.14
-        },
-        "weakest_subject": "math score"
+        "total_deliveries": 1000,
+        "avg_delivery_time": 27.3,
+        "delayed_deliveries_percentage": 8.2,
+        "top_performer_rating": 4.8,
+        "avg_partner_rating": 4.3,
+        "longest_distance_avg": 12.5
     }
 }
 
 def analyze_decision():
-    """Analyze academic data using Gemini AI and return decision"""
+    """Analyze delivery data using Gemini AI and return decision"""
     
     prompt = f"""
-You are a senior AI decision assistant used by school leadership.
+You are a senior AI decision assistant for a food delivery company.
 
 Context:
 {summary['context']}
@@ -38,10 +36,10 @@ Computed Signals:
 {json.dumps(summary['signals'], indent=2)}
 
 Your task:
-1. Classify overall academic status as GOOD / WARNING / CRITICAL
-2. Explain the decision in simple leadership language
-3. Suggest ONE immediate action
-4. Suggest ONE long-term improvement strategy
+1. Classify overall delivery performance as GOOD / WARNING / CRITICAL
+2. Explain the decision in simple business language
+3. Suggest ONE immediate action to improve delivery times
+4. Suggest ONE long-term strategy to optimize the delivery network
 
 Return STRICT JSON ONLY:
 {{
@@ -52,7 +50,8 @@ Return STRICT JSON ONLY:
 }}
 """
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
+    # ✅ Using EXACT model from your TypeScript code: gemini-2.5-flash
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     
     payload = {
         "contents": [
@@ -67,7 +66,7 @@ Return STRICT JSON ONLY:
     headers = {"Content-Type": "application/json"}
     
     try:
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
         response.raise_for_status()
         
         ai_response = response.json()
@@ -82,16 +81,17 @@ Return STRICT JSON ONLY:
         
         decision = json.loads(response_text)
         
-        print("AI Decision Output:")
+        print("✅ AI Decision Output:")
         print(json.dumps(decision, indent=2))
         
         return decision
         
     except requests.exceptions.RequestException as e:
-        print(f"API Error: {e}")
+        print(f"❌ API Error: {e}")
+        print(f"🔑 Check your API key: {GEMINI_API_KEY[:10]}...")
         raise
     except json.JSONDecodeError as e:
-        print(f"JSON Parse Error: {e}")
+        print(f"❌ JSON Parse Error: {e}")
         print(f"Raw response: {response_text}")
         raise
 

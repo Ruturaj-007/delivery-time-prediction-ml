@@ -1,6 +1,6 @@
 import gradio as gr
 import pandas as pd
-import pickle
+import joblib
 import os
 import json
 import requests
@@ -12,11 +12,19 @@ load_dotenv()
 # ---------------- LOAD MODEL ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-with open(os.path.join(BASE_DIR, "delivery_time_model.pkl"), "rb") as f:
-    model = pickle.load(f)
-
-with open(os.path.join(BASE_DIR, "model_features.pkl"), "rb") as f:
-    FEATURES = pickle.load(f)
+# Use joblib instead of pickle for sklearn models
+try:
+    model = joblib.load(os.path.join(BASE_DIR, "delivery_time_model.joblib"))
+    FEATURES = joblib.load(os.path.join(BASE_DIR, "model_features.joblib"))
+    print("✅ Model loaded successfully!")
+except FileNotFoundError:
+    print("⚠️ .joblib files not found, trying .pkl files...")
+    import pickle
+    with open(os.path.join(BASE_DIR, "delivery_time_model.pkl"), "rb") as f:
+        model = pickle.load(f)
+    with open(os.path.join(BASE_DIR, "model_features.pkl"), "rb") as f:
+        FEATURES = pickle.load(f)
+    print("✅ Model loaded from .pkl files")
 
 # ---------------- API KEYS ----------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -40,28 +48,26 @@ VEHICLE_MAP = {
 
 # ---------------- AI DECISION FUNCTION ----------------
 def get_ai_decision():
-    """Get AI decision from Gemini"""
+    """Get AI decision from Gemini about delivery performance"""
     
     if not GEMINI_API_KEY:
         return {"status": "ERROR", "reason": "Gemini API key not configured", 
                 "immediate_action": "Configure API key", "long_term_recommendation": "Set up environment variables"}
     
     summary = {
-        "context": "Student academic performance evaluation dataset",
+        "context": "Food delivery service performance evaluation",
         "signals": {
-            "total_students": 1000,
-            "overall_avg_score": 67.71,
-            "risk_percentage": 12.4,
-            "test_preparation_impact": {
-                "completed": 72.82,
-                "none": 65.14
-            },
-            "weakest_subject": "math score"
+            "total_deliveries": 1000,
+            "avg_delivery_time": 27.3,
+            "delayed_deliveries_percentage": 8.2,
+            "top_performer_rating": 4.8,
+            "avg_partner_rating": 4.3,
+            "longest_distance_avg": 12.5
         }
     }
     
     prompt = f"""
-You are a senior AI decision assistant used by school leadership.
+You are a senior AI decision assistant for a food delivery company.
 
 Context:
 {summary['context']}
@@ -70,10 +76,10 @@ Computed Signals:
 {json.dumps(summary['signals'], indent=2)}
 
 Your task:
-1. Classify overall academic status as GOOD / WARNING / CRITICAL
-2. Explain the decision in simple leadership language
-3. Suggest ONE immediate action
-4. Suggest ONE long-term improvement strategy
+1. Classify overall delivery performance as GOOD / WARNING / CRITICAL
+2. Explain the decision in simple business language
+3. Suggest ONE immediate action to improve delivery times
+4. Suggest ONE long-term strategy to optimize the delivery network
 
 Return STRICT JSON ONLY:
 {{
@@ -84,14 +90,15 @@ Return STRICT JSON ONLY:
 }}
 """
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={GEMINI_API_KEY}"
+    # ✅ Using EXACT model from TypeScript code: gemini-2.5-flash
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     
     payload = {
         "contents": [{"parts": [{"text": prompt}]}]
     }
     
     try:
-        response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=10)
+        response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload, timeout=15)
         response.raise_for_status()
         
         ai_response = response.json()
@@ -110,7 +117,7 @@ Return STRICT JSON ONLY:
         return {
             "status": "ERROR",
             "reason": f"Failed to get AI decision: {str(e)}",
-            "immediate_action": "Check API configuration",
+            "immediate_action": "Check API configuration and model endpoint",
             "long_term_recommendation": "Verify API keys and network connection"
         }
 
@@ -150,7 +157,7 @@ def display_ai_decision():
             {decision['status']}
         </div>
         
-        <h3 style="margin: 15px 0; color: #1e293b;">Analysis</h3>
+        <h3 style="margin: 15px 0; color: #1e293b;">📊 Analysis</h3>
         <p style="color: #475569; line-height: 1.6; margin-bottom: 20px;">{decision['reason']}</p>
         
         <h3 style="margin: 15px 0; color: #1e293b;">⚡ Immediate Action</h3>
@@ -174,19 +181,40 @@ def send_decision_email():
     
     try:
         params = {
-            "from": f"AI Decision System <{RESEND_FROM_EMAIL}>",
+            "from": f"Delivery AI System <{RESEND_FROM_EMAIL}>",
             "to": ["pruturaj3003@gmail.com"],
-            "subject": "🚨 AI Academic Risk Report – Action Required",
+            "subject": "🚨 Delivery Performance Alert – Action Required",
             "html": f"""
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <h2 style="color: #ef4444;">Status: {decision['status']}</h2>
-                    <p><strong>Reason:</strong> {decision['reason']}</p>
-                    <p><strong>Immediate Action:</strong> {decision['immediate_action']}</p>
-                    <p><strong>Long-Term Recommendation:</strong> {decision['long_term_recommendation']}</p>
-                    <hr style="border: 1px solid #e5e7eb; margin: 20px 0;" />
-                    <p style="color: #6b7280; font-size: 14px;">
-                        This decision was generated automatically by the AI Decision Assistant.
-                    </p>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 12px;">
+                    <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 28px;">🚀 Delivery Performance Report</h1>
+                    </div>
+                    
+                    <div style="background: white; padding: 30px; border-radius: 0 0 12px 12px;">
+                        <div style="background: #{"10b981" if decision['status'] == "GOOD" else "#f59e0b" if decision['status'] == "WARNING" else "#ef4444"}; color: white; padding: 10px 20px; border-radius: 8px; display: inline-block; font-weight: bold; margin-bottom: 20px;">
+                            Status: {decision['status']}
+                        </div>
+                        
+                        <h3 style="color: #1e293b; margin-top: 20px;">📊 Analysis</h3>
+                        <p style="color: #475569; line-height: 1.6;">{decision['reason']}</p>
+                        
+                        <h3 style="color: #1e293b; margin-top: 25px;">⚡ Immediate Action</h3>
+                        <p style="color: #475569; line-height: 1.6; background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                            {decision['immediate_action']}
+                        </p>
+                        
+                        <h3 style="color: #1e293b; margin-top: 25px;">🎯 Long-Term Recommendation</h3>
+                        <p style="color: #475569; line-height: 1.6; background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                            {decision['long_term_recommendation']}
+                        </p>
+                        
+                        <hr style="border: 1px solid #e5e7eb; margin: 30px 0;" />
+                        
+                        <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                            This report was generated automatically by the Delivery AI System.<br>
+                            <strong>Powered by Gemini AI & Machine Learning</strong>
+                        </p>
+                    </div>
                 </div>
             """
         }
@@ -497,28 +525,28 @@ label {
 """
 
 # ---------------- UI ----------------
-with gr.Blocks(css=css, title="🚀 Smart Delivery AI System") as app:
+with gr.Blocks(title="🚀 Smart Delivery AI System") as app:
 
     with gr.Column(elem_id="main"):
 
         gr.Markdown("""
-        <h1>Smart Delivery ETA</h1>
-        <div class="subtitle">
-        AI-powered food delivery time prediction using advanced Machine Learning
-        </div>
-        """, unsafe_allow_html=True)
+<h1>Smart Delivery ETA</h1>
+<div class="subtitle">
+AI-powered food delivery time prediction using advanced Machine Learning
+</div>
+        """)
 
         # Tab 1: Delivery Prediction
         with gr.Tab("🚀 Delivery Prediction"):
             
-            gr.Markdown('<div class="section-header">📧 User Information</div>')
+            gr.HTML('<div class="section-header">📧 User Information</div>')
             email = gr.Textbox(
                 label="Email Address", 
                 placeholder="you@example.com",
                 info="Enter your email to receive delivery updates"
             )
 
-            gr.Markdown('<div class="section-header">🎯 Delivery Parameters</div>')
+            gr.HTML('<div class="section-header">🎯 Delivery Parameters</div>')
 
             with gr.Row():
                 age = gr.Slider(
@@ -566,18 +594,18 @@ with gr.Blocks(css=css, title="🚀 Smart Delivery AI System") as app:
             )
         
         # Tab 2: AI Decision System
-        with gr.Tab("🤖 AI Decision System"):
+        with gr.Tab("🤖 AI Performance Analytics"):
             
-            gr.Markdown('<div class="section-header">🧠 Academic Performance Analysis</div>')
-            gr.Markdown("""
-            <p style="color: #64748b; margin-bottom: 20px;">
-            Get AI-powered insights on academic performance and receive actionable recommendations.
-            </p>
-            """, unsafe_allow_html=True)
+            gr.HTML('<div class="section-header">📊 Delivery Performance Analysis</div>')
+            gr.HTML("""
+<p style="color: #64748b; margin-bottom: 20px;">
+Get AI-powered insights on delivery performance and receive actionable recommendations to optimize operations.
+</p>
+            """)
             
             with gr.Row():
-                analyze_btn = gr.Button("🧠 Analyze with AI", variant="primary", scale=2)
-                email_btn = gr.Button("📧 Send Email Report", variant="secondary", scale=1)
+                analyze_btn = gr.Button("🧠 Analyze Performance", variant="primary", scale=2)
+                email_btn = gr.Button("📧 Send Report", variant="secondary", scale=1)
             
             ai_output = gr.HTML()
             email_status = gr.Textbox(label="Email Status", interactive=False)
@@ -594,14 +622,16 @@ with gr.Blocks(css=css, title="🚀 Smart Delivery AI System") as app:
                 outputs=email_status
             )
 
-        gr.Markdown("""
-        <div class="footer">
-            Built with <span class="footer-badge">Gradient Boosting</span> 
-            <span class="footer-badge">Gemini AI</span> 
-            <span class="footer-badge">Resend Email</span> 
-            <span class="footer-badge">Gradio UI</span>
-        </div>
-        """, unsafe_allow_html=True)
+        gr.HTML("""
+<div class="footer">
+    Built with <span class="footer-badge">Gradient Boosting</span> 
+    <span class="footer-badge">Gemini AI</span> 
+    <span class="footer-badge">Resend Email</span> 
+    <span class="footer-badge">Gradio UI</span>
+</div>
+        """)
 
 if __name__ == "__main__":
-    app.launch()
+    print("🚀 Starting Smart Delivery AI...")
+    print(f"📦 Model features: {FEATURES}")
+    app.launch(css=css, share=False)
