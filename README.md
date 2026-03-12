@@ -15,13 +15,17 @@ An intelligent machine learning system that predicts food delivery times with hi
 
 ## Screenshots
 ### Delivery Prediction
-![Delivery Prediction](screenshots/delivery_prediction.png)
+![Delivery Prediction](screenshots/predict_eta.png)
 
 ### Email Performance Report
-![Email Report](screenshots/detailed_email_report.png)
+![Email Report](screenshots/email_report.png)
 
-### AI Performance Analytics
-![Performance Analytics](screenshots/ai_performance_analytics.png)
+### Analytics
+![Performance Analytics](screenshots/analytics.png)
+
+### Data Explorer
+![Performance Analytics](screenshots/data_explorer.png)
+
 
 
 
